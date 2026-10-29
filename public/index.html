@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Documentación para integrar la API de ventas: consultas, consolidado y registro de ventas.">
+  <title>API de Ventas · Documentación</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #14243b;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --blue: #315eea;
+      --blue-dark: #2448bf;
+      --surface: #ffffff;
+      --canvas: #f5f7fb;
+      --green: #087e63;
+      --red: #c2414c;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 26px; }
+    body { margin: 0; color: var(--ink); background: var(--canvas); }
+    a { color: var(--blue); }
+    .topbar { height: 68px; display: flex; align-items: center; justify-content: space-between; padding: 0 max(28px, calc((100vw - 1240px) / 2)); background: #fff; border-bottom: 1px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 750; letter-spacing: -.025em; }
+    .brand-mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: #e9efff; color: var(--blue); font-size: 17px; }
+    .top-meta { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; }
+    .version { border: 1px solid #dbe4ff; border-radius: 99px; padding: 5px 10px; color: var(--blue-dark); background: #f5f7ff; font-weight: 700; }
+    .layout { width: min(1240px, calc(100% - 48px)); margin: 36px auto 80px; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 44px; align-items: start; }
+    aside { position: sticky; top: 24px; padding: 10px 0; }
+    .nav-label { margin: 0 0 12px 12px; color: #94a3b8; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    nav { display: grid; gap: 4px; }
+    nav a { padding: 9px 12px; color: #52627a; text-decoration: none; border-radius: 8px; font-size: 14px; }
+    nav a:hover { color: var(--blue); background: #eaf0ff; }
+    main { min-width: 0; }
+    .hero { position: relative; overflow: hidden; padding: 43px 46px; border-radius: 18px; color: #fff; background: linear-gradient(115deg, #172e62 0%, #284caa 57%, #4269e7 100%); box-shadow: 0 16px 38px #294b9c25; }
+    .hero::after { content: ""; position: absolute; width: 300px; height: 300px; right: -65px; top: -130px; border: 1px solid #ffffff26; border-radius: 50%; box-shadow: 0 0 0 35px #ffffff0b, 0 0 0 70px #ffffff08; }
+    .eyebrow { margin: 0 0 14px; color: #c9d7ff; font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 0; max-width: 650px; font-size: clamp(30px, 4vw, 43px); line-height: 1.13; letter-spacing: -.04em; }
+    .hero-copy { max-width: 590px; margin: 15px 0 25px; color: #e1e9ff; line-height: 1.7; }
+    .base-url { position: relative; z-index: 1; display: inline-flex; gap: 11px; align-items: center; padding: 10px 13px; border: 1px solid #ffffff40; border-radius: 9px; background: #10255055; color: #fff; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .base-label { color: #d5e0ff; font: 11px system-ui, sans-serif; text-transform: uppercase; letter-spacing: .08em; }
+    .section { margin-top: 39px; }
+    .section-head { margin-bottom: 17px; }
+    .section-head h2 { margin: 0 0 6px; font-size: 22px; letter-spacing: -.025em; }
+    .section-head p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .info { min-height: 100px; padding: 16px 17px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+    .info strong { display: block; margin-bottom: 7px; font-size: 13px; }
+    .info span { color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .endpoint { margin-top: 14px; overflow: hidden; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); box-shadow: 0 3px 10px #20365408; }
+    .endpoint-top { display: flex; align-items: center; gap: 11px; padding: 17px 20px; border-bottom: 1px solid var(--line); }
+    .method { min-width: 55px; padding: 5px 8px; border-radius: 6px; text-align: center; font-size: 11px; font-weight: 850; letter-spacing: .04em; }
+    .get { color: #087e63; background: #e8f7f2; }
+    .post { color: #9a5b05; background: #fff4dc; }
+    .path { overflow-wrap: anywhere; font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 650; }
+    .endpoint-body { padding: 19px 20px 20px; }
+    .endpoint-body > p { margin: 0 0 14px; color: #52627a; font-size: 14px; line-height: 1.65; }
+    h3 { margin: 20px 0 9px; font-size: 14px; }
+    .endpoint-body h3:first-child { margin-top: 0; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { padding: 9px 10px; color: #64748b; background: #f8fafc; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+    td { padding: 10px; border-top: 1px solid #edf0f5; vertical-align: top; line-height: 1.5; }
+    td:first-child { white-space: nowrap; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    td code, p code { padding: 2px 5px; color: #314a83; border-radius: 4px; background: #f0f3fa; font-size: .92em; }
+    .codebox { position: relative; margin-top: 10px; border-radius: 9px; overflow: hidden; background: #111b2d; }
+    .code-head { display: flex; justify-content: space-between; align-items: center; padding: 9px 13px; color: #aebbd1; border-bottom: 1px solid #ffffff16; font-size: 11px; }
+    .copy { cursor: pointer; padding: 4px 8px; border: 1px solid #ffffff30; border-radius: 5px; color: #e2e8f0; background: transparent; font: inherit; }
+    .copy:hover { background: #ffffff12; }
+    pre { overflow-x: auto; margin: 0; padding: 15px; color: #e2e8f0; font-size: 12px; line-height: 1.65; tab-size: 2; }
+    .status-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .status-list li { display: flex; gap: 10px; color: #52627a; font-size: 13px; line-height: 1.55; }
+    .status-code { min-width: 38px; color: var(--blue-dark); font: 700 12px ui-monospace, monospace; }
+    .note { margin-top: 14px; padding: 13px 15px; border-left: 3px solid #f0b84c; border-radius: 0 7px 7px 0; color: #6d582e; background: #fff9e9; font-size: 13px; line-height: 1.6; }
+    footer { margin-top: 38px; padding-top: 18px; border-top: 1px solid var(--line); color: #8491a5; font-size: 12px; }
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; gap: 18px; margin-top: 22px; }
+      aside { position: static; overflow-x: auto; }
+      .nav-label { display: none; }
+      nav { display: flex; min-width: max-content; }
+      nav a { padding: 8px 10px; }
+      .hero { padding: 32px 28px; }
+    }
+    @media (max-width: 560px) {
+      .topbar { height: 58px; padding: 0 18px; }
+      .top-meta { font-size: 11px; }
+      .layout { width: calc(100% - 28px); }
+      .hero { padding: 28px 22px; border-radius: 13px; }
+      .base-url { display: flex; flex-wrap: wrap; }
+      .info-grid { grid-template-columns: 1fr; }
+      .endpoint-top { padding: 14px; }
+      .endpoint-body { padding: 16px 14px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">↗</span><span>Ventas API</span></div>
+    <div class="top-meta"><span>Documentación para desarrolladores</span><span class="version">v1</span></div>
+  </header>
+  <div class="layout">
+    <aside aria-label="Navegación de documentación">
+      <p class="nav-label">En esta página</p>
+      <nav>
+        <a href="#inicio">Introducción</a>
+        <a href="#conexión">Conexión</a>
+        <a href="#endpoints">Endpoints</a>
+        <a href="#errores">Respuestas y errores</a>
+      </nav>
+    </aside>
+    <main>
+      <section class="hero" id="inicio">
+        <p class="eyebrow">REST · JSON · API v1</p>
+        <h1>Documentación de la API de Ventas</h1>
+        <p class="hero-copy">Consulta ventas por identificador, obtén un consolidado por sucursal y año, o registra una nueva venta desde tu aplicación.</p>
+        <div class="base-url"><span class="base-label">URL base local</span><span>http://localhost:3000/api/v1/ventas</span></div>
+      </section>
+
+      <section class="section" id="conexión">
+        <div class="section-head">
+          <h2>Conexión y formato</h2>
+          <p>La API acepta y devuelve JSON. Sustituye el host y puerto por los de tu entorno cuando esté desplegada.</p>
+        </div>
+        <div class="info-grid">
+          <div class="info"><strong>Base URL</strong><span><code>http://localhost:3000/api/v1/ventas</code> en desarrollo.</span></div>
+          <div class="info"><strong>Autenticación</strong><span>No se configura autenticación en los endpoints actuales.</span></div>
+          <div class="info"><strong>Cabeceras</strong><span>Para enviar un cuerpo, usa <code>Content-Type: application/json</code>.</span></div>
+        </div>
+      </section>
+
+      <section class="section" id="endpoints">
+        <div class="section-head">
+          <h2>Endpoints</h2>
+          <p>Todos los recursos están bajo el prefijo <code>/api/v1/ventas</code>.</p>
+        </div>
+
+        <article class="endpoint">
+          <div class="endpoint-top"><span class="method get">GET</span><span class="path">/consolidado</span></div>
+          <div class="endpoint-body">
+            <p>Devuelve el consolidado de ventas filtrado por sucursal y año. Ambos parámetros de consulta son obligatorios.</p>
+            <h3>Parámetros de consulta</h3>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Parámetro</th><th>Tipo esperado</th><th>Requerido</th><th>Descripción</th></tr></thead>
+              <tbody><tr><td><code>sucursal</code></td><td>Texto o identificador</td><td>Sí</td><td>Sucursal para filtrar el consolidado.</td></tr><tr><td><code>anio</code></td><td>Año</td><td>Sí</td><td>Año para el que se solicita el consolidado.</td></tr></tbody>
+            </table></div>
+            <div class="codebox"><div class="code-head"><span>Solicitud · cURL</span><button class="copy" type="button">Copiar</button></div><pre><code>curl "http://localhost:3000/api/v1/ventas/consolidado?sucursal=Centro&amp;anio=2025"</code></pre></div>
+            <h3>Respuesta exitosa · 200</h3>
+            <div class="codebox"><div class="code-head"><span>application/json</span><button class="copy" type="button">Copiar</button></div><pre><code>{
+  "status": "sucess",
+  "total_registros": 1,
+  "data": [ /* filas devueltas por el procedimiento de consolidado */ ]
+}</code></pre></div>
+            <div class="note">El nombre de estado que devuelve actualmente este endpoint es <code>sucess</code> (con esa ortografía). La estructura de cada fila depende del procedimiento almacenado de la base de datos.</div>
+          </div>
+        </article>
+
+        <article class="endpoint">
+          <div class="endpoint-top"><span class="method get">GET</span><span class="path">/:id_venta</span></div>
+          <div class="endpoint-body">
+            <p>Busca una venta por su identificador único.</p>
+            <h3>Parámetro de ruta</h3>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Parámetro</th><th>Tipo</th><th>Requerido</th><th>Descripción</th></tr></thead>
+              <tbody><tr><td><code>id_venta</code></td><td>Entero positivo</td><td>Sí</td><td>Identificador de la venta que se desea consultar.</td></tr></tbody>
+            </table></div>
+            <div class="codebox"><div class="code-head"><span>Solicitud · JavaScript</span><button class="copy" type="button">Copiar</button></div><pre><code>const response = await fetch(
+  'http://localhost:3000/api/v1/ventas/42'
+);
+const result = await response.json();
+console.log(result);</code></pre></div>
+            <h3>Respuesta exitosa · 200</h3>
+            <div class="codebox"><div class="code-head"><span>application/json</span><button class="copy" type="button">Copiar</button></div><pre><code>{
+  "status": "success",
+  "data": [ /* venta devuelta por la base de datos */ ]
+}</code></pre></div>
+          </div>
+        </article>
+
+        <article class="endpoint">
+          <div class="endpoint-top"><span class="method post">POST</span><span class="path">/</span></div>
+          <div class="endpoint-body">
+            <p>Registra una venta nueva. Envía los cuatro campos obligatorios en el cuerpo JSON.</p>
+            <h3>Cuerpo de la solicitud</h3>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Campo</th><th>Tipo esperado</th><th>Requerido</th><th>Descripción</th></tr></thead>
+              <tbody><tr><td><code>id_producto</code></td><td>Identificador</td><td>Sí</td><td>Producto vendido.</td></tr><tr><td><code>id_cliente</code></td><td>Identificador</td><td>Sí</td><td>Cliente que realiza la compra.</td></tr><tr><td><code>cantidad</code></td><td>Número</td><td>Sí</td><td>Cantidad vendida.</td></tr><tr><td><code>fecha_venta</code></td><td>Fecha</td><td>Sí</td><td>Fecha de la venta; se recomienda formato <code>YYYY-MM-DD</code>.</td></tr></tbody>
+            </table></div>
+            <div class="codebox"><div class="code-head"><span>Solicitud · cURL</span><button class="copy" type="button">Copiar</button></div><pre><code>curl -X POST "http://localhost:3000/api/v1/ventas" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id_producto": 12,
+    "id_cliente": 7,
+    "cantidad": 2,
+    "fecha_venta": "2025-04-18"
+  }'</code></pre></div>
+            <h3>Respuesta exitosa · 201</h3>
+            <div class="codebox"><div class="code-head"><span>application/json</span><button class="copy" type="button">Copiar</button></div><pre><code>{
+  "status": "created",
+  "message": "venta registrada exitosamente",
+  "datos_registrados": {
+    "id_producto": 12,
+    "id_cliente": 7,
+    "cantidad": 2,
+    "fecha_venta": "2025-04-18"
+  }
+}</code></pre></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="section" id="errores">
+        <div class="section-head">
+          <h2>Respuestas y errores</h2>
+          <p>Los errores se devuelven como JSON. Revisa el código HTTP además del cuerpo.</p>
+        </div>
+        <div class="endpoint"><div class="endpoint-body">
+          <ul class="status-list">
+            <li><span class="status-code">200</span><span>Consulta completada correctamente.</span></li>
+            <li><span class="status-code">201</span><span>Venta creada correctamente.</span></li>
+            <li><span class="status-code">400</span><span>Faltan parámetros o el identificador de venta no es un entero positivo.</span></li>
+            <li><span class="status-code">404</span><span>No existe una venta con el identificador solicitado.</span></li>
+            <li><span class="status-code">500</span><span>Error interno al consultar o escribir en MySQL.</span></li>
+          </ul>
+          <div class="codebox"><div class="code-head"><span>Ejemplo · error de validación</span><button class="copy" type="button">Copiar</button></div><pre><code>{
+  "error": "Bad Request",
+  "message": "Debe enviar ambos parametros"
+}</code></pre></div>
+          <div class="note">La API necesita una conexión válida a MySQL y los procedimientos almacenados requeridos para operar. No se ha configurado CORS en el servidor; si el cliente web está en otro origen, el servidor deberá habilitarlo.</div>
+        </div></div>
+      </section>
+      <footer>API de Ventas · Documentación basada en los endpoints implementados.</footer>
+    </main>
+  </div>
+  <script>
+    document.querySelectorAll('.copy').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const code = button.closest('.codebox').querySelector('pre').innerText;
+        try {
+          await navigator.clipboard.writeText(code);
+          button.textContent = 'Copiado';
+          setTimeout(() => { button.textContent = 'Copiar'; }, 1500);
+        } catch {
+          button.textContent = 'No disponible';
+          setTimeout(() => { button.textContent = 'Copiar'; }, 1500);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
